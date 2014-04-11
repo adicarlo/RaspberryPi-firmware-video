@@ -226,9 +226,11 @@ int main (int argc, char **argv)
    bcm_host_init();
    int ret = 0;
    int loop;
-   for(loop=1;loop<argc;loop++) {
-     printf("playing %s ...\n",argv[loop]);
-     ret = video_decode_test(argv[loop]);
+   while (1) {
+     for(loop=1;loop<argc;loop++) {
+       printf("playing %s ...\n",argv[loop]);
+       ret = video_decode_test(argv[loop]);
+     }
    }
    return ret;
 }
