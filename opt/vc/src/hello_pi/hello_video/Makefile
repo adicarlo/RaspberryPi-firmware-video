@@ -1,5 +1,5 @@
 OBJS=video.o
-BIN=hello_video.bin
+BIN=hello_video
 LDFLAGS+=-lilclient -lwiringPi
 SDKSTAGE=../../../../..
 
