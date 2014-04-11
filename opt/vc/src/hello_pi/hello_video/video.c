@@ -224,13 +224,21 @@ int main (int argc, char **argv)
       exit(1);
    }
    bcm_host_init();
+
+   movie_count = argc;
+   movies = argv;
+
+   setup_gpio();
+#ifdef RASPBI
+   setup_button_callbacks();
+#endif
+   setup_interrupt_callbacks();
+
    int ret = 0;
-   int loop;
    while (1) {
-     for(loop=1;loop<argc;loop++) {
-       printf("playing %s ...\n",argv[loop]);
-       ret = video_decode_test(argv[loop]);
-     }
+     printf("playing %s ...\n", current_movie());
+     ret = video_decode_test(current_movie());
+     next_movie();
    }
    return ret;
 }
