@@ -1,6 +1,6 @@
 OBJS=video.o
 BIN=hello_video.bin
-LDFLAGS+=-lilclient
+LDFLAGS+=-lilclient -lwiringPi
 
 include ../Makefile.include
 

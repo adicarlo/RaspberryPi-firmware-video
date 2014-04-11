@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bcm_host.h"
 #include "ilclient.h"
+#include "yorgo.h"
 
 static int video_decode_test(char *filename)
 {
@@ -212,11 +213,16 @@ static int video_decode_test(char *filename)
 int main (int argc, char **argv)
 {
    if (argc < 2) {
-      printf("Usage: %s <filename>\n", argv[0]);
+      printf("Usage: %s <filename> [...]\n", argv[0]);
       exit(1);
    }
    bcm_host_init();
-   return video_decode_test(argv[1]);
+   int ret = 0;
+   for(loop=1;loop<argc;loop++) {
+     printf("playing %s ...\n",argv[loop]);
+     ret = video_decode_test(argv[loop]);
+   }
+   return ret;
 }
 
 
