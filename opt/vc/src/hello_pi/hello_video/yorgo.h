@@ -11,12 +11,10 @@ int movie_count;
 int movie_curr = 1;
 char **movies;
 
-/* BCM_GPIO numbering */
+/* WiringPi numbering */
 /* FIXME: should be configurable */
-int btn_next_pin = 0;
-int btn_prior_pin = 1;
-
-#define BCM_PIN_OFFSET 17
+int btn_next_pin = 13; /* GPIO 9 */
+int btn_prior_pin = 14; /* GPIO 11 */
 
 #ifdef __arm__
 #define RASPBI 1
@@ -34,7 +32,7 @@ void setup_gpio_button (int pin) {
     int limit = 256;
     char command[limit];
 
-    snprintf(command, limit, "gpio edge %d rising", pin + BCM_PIN_OFFSET);
+    snprintf(command, limit, "gpio edge %d rising", wpiPinToGpio(pin));
 #ifdef RASPBI
     pinMode(pin, INPUT);
     pullUpDnControl(pin, PUD_UP);
