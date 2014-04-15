@@ -13,10 +13,8 @@ char **movies;
 
 /* WiringPi numbering */
 /* FIXME: should be configurable */
-int btn_next_pin = 13; /* wiringPi number */
-int btn_next_pin_bcm = 9; /* BCM GPIO 9 */
+int btn_next_pin = 13;
 int btn_prior_pin = 14;
-int btn_prior_pin_bcm = 11; /* BCM GPIO 11 */
 
 #ifdef __arm__
 #define RASPBI 1
@@ -42,11 +40,16 @@ void run_or_die (char *command) {
     }
 }
 
-void setup_gpio_button (int pin, int bcm_pin) {
+void setup_gpio_button (int pin) {
     int limit = 256;
     char command[limit];
 
-    snprintf(command, limit, "gpio edge %d rising", bcm_pin);
+    int gpio_pin = pin;
+#ifdef RASPBI
+    gpio_pin = wpiPinToGpio(pin);
+#endif
+    snprintf(command, limit, "gpio edge %d rising", gpio_pin);
+
 #ifdef RASPBI
     pinMode(pin, INPUT);
     pullUpDnControl(pin, PUD_UP);
@@ -55,9 +58,6 @@ void setup_gpio_button (int pin, int bcm_pin) {
 }
 
 void setup_gpio () {
-    setup_gpio_button(btn_next_pin, btn_next_pin_bcm);
-    setup_gpio_button(btn_prior_pin, btn_prior_pin_bcm);
-
     int ret = 0;
 #ifdef RASPBI
     // wiringPiSetupSys() doesn't seem to work
@@ -67,6 +67,8 @@ void setup_gpio () {
 	fprintf(stderr, "wiringPi setup failed: %d", errno);
 	exit(EXIT_FAILURE);
     }
+    setup_gpio_button(btn_next_pin);
+    setup_gpio_button(btn_prior_pin);
 }
 
 char* current_movie () {
