@@ -13,8 +13,10 @@ char **movies;
 
 /* WiringPi numbering */
 /* FIXME: should be configurable */
-int btn_next_pin = 13; /* GPIO 9 */
-int btn_prior_pin = 14; /* GPIO 11 */
+int btn_next_pin = 13; /* wiringPi number */
+int btn_next_pin_bcm = 9; /* BCM GPIO 9 */
+int btn_prior_pin = 14;
+int btn_prior_pin_bcm = 11; /* BCM GPIO 11 */
 
 #ifdef __arm__
 #define RASPBI 1
@@ -28,11 +30,11 @@ void run_or_die (char *command) {
     }
 }
 
-void setup_gpio_button (int pin) {
+void setup_gpio_button (int pin, int bcm_pin) {
     int limit = 256;
     char command[limit];
 
-    snprintf(command, limit, "gpio edge %d rising", wpiPinToGpio(pin));
+    snprintf(command, limit, "gpio edge %d rising", bcm_pin);
 #ifdef RASPBI
     pinMode(pin, INPUT);
     pullUpDnControl(pin, PUD_UP);
@@ -41,8 +43,8 @@ void setup_gpio_button (int pin) {
 }
 
 void setup_gpio () {
-    setup_gpio_button(btn_next_pin);
-    setup_gpio_button(btn_prior_pin);
+    setup_gpio_button(btn_next_pin, btn_next_pin_bcm);
+    setup_gpio_button(btn_prior_pin, btn_prior_pin_bcm);
 
     int ret = 0;
 #ifdef RASPBI
