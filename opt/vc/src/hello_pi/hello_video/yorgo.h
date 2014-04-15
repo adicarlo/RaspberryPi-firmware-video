@@ -22,6 +22,18 @@ int btn_prior_pin_bcm = 11; /* BCM GPIO 11 */
 #define RASPBI 1
 #endif
 
+static int flag_interrupt = 0;
+
+inline int check_interrupt () {
+  int i = flag_interrupt;
+  flag_interrupt = 0;
+  return i;
+}
+
+inline void raise_interrupt () {
+  flag_interrupt = 1;
+}
+
 void run_or_die (char *command) {
     int ret = system(command);
     if ( ret != 0 ) {
@@ -78,14 +90,26 @@ void prior_movie () {
     }
 }
 
+void next_movie_intr () {
+    printf("interrupt: next\n");
+    next_movie();
+    raise_interrupt();
+}
+
+void prior_movie_intr () {
+    printf("interrupt: prior\n");
+    prior_movie();
+    raise_interrupt();
+}
+
 
 void setup_button_callbacks () {
     /* https://projects.drogon.net/raspberry-pi/wiringpi/functions/ */
     void (*fp)();
-    fp = &next_movie;
+    fp = &next_movie_intr;
     /* FIXME: what about retval? */
     wiringPiISR(btn_next_pin, INT_EDGE_RISING, fp);
-    fp = &prior_movie;
+    fp = &prior_movie_intr;
     wiringPiISR(btn_prior_pin, INT_EDGE_RISING, fp);
 }
 
