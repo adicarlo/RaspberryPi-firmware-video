@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ilclient.h"
 
 #include "yorgo.h"
-    ;
 
 int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 		   COMPONENT_T *video_render, TUNNEL_T tunnel[4], FILE *in)
@@ -48,7 +47,8 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 
     ilclient_change_component_state(video_decode, OMX_StateExecuting);
 
-    while((buf = ilclient_get_input_buffer(video_decode, 130, 1)) != NULL)
+    while((buf = ilclient_get_input_buffer(video_decode, 130, 1)) != NULL &&
+	  check_interrupt() == 0)
     {
 	// feed data and wait until we get port settings changed
 	unsigned char *dest = buf->pBuffer;
