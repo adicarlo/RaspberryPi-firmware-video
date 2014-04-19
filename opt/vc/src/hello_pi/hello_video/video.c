@@ -246,28 +246,29 @@ static int video_decode_test(char *filename)
 
 int main (int argc, char **argv)
 {
-   if (argc < 2) {
-      printf("Usage: %s <filename> [...]\n", argv[0]);
-      exit(1);
-   }
-   bcm_host_init();
+    if(argc < 2) {
+	printf("Usage: %s <filename> [...]\n", argv[0]);
+	exit(1);
+    }
+    bcm_host_init();
 
-   movie_count = argc;
-   movies = argv;
+    movie_count = argc;
+    movies = argv;
 
-   setup_gpio();
+    setup_gpio();
 #ifdef RASPBI
-   setup_button_callbacks();
+    setup_button_callbacks();
 #endif
-   setup_interrupt_callbacks();
+    setup_interrupt_callbacks();
 
-   int ret = 0;
-   while (1) {
-     DEBUG_PRINT(("playing %s ...\n", current_movie()));
-     ret = video_decode_test(current_movie());
-     next_movie();
-   }
-   return ret;
+    int ret = 0;
+    while(1)
+    {
+	DEBUG_PRINT(("playing %s ...\n", current_movie()));
+	ret = video_decode_test(current_movie());
+	next_movie();
+    }
+    return ret;
 }
 
 
