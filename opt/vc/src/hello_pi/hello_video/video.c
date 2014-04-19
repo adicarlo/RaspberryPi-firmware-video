@@ -36,6 +36,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "yorgo.h"
 
+    /* #define DEBUG 1 */
+
+#ifdef DEBUG
+# define DEBUG_PRINT(x) printf x
+#else
+# define DEBUG_PRINT(x) do {} while (0)
+#endif
+
 int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 		   COMPONENT_T *video_render, TUNNEL_T tunnel[4], FILE *in)
 {
@@ -44,6 +52,9 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
     int first_packet = 1;
     unsigned int data_len = 0;
     unsigned int status = 0;
+    #ifdef DEBUG
+    unsigned int ctr = 0;
+    #endif
 
     ilclient_change_component_state(video_decode, OMX_StateExecuting);
 
@@ -58,7 +69,9 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 	// feed data and wait until we get port settings changed
 	unsigned char *dest = buf->pBuffer;
 
+	DEBUG_PRINT(("loop %d checkpoint .", ctr++));
 	data_len += fread(dest, 1, buf->nAllocLen-data_len, in);
+	DEBUG_PRINT(("."));
 
 	if(port_settings_changed == 0 &&
 	   ((data_len > 0 && ilclient_remove_event(video_decode, OMX_EventPortSettingsChanged, 131, 0, 0, 1) == 0) ||
@@ -85,7 +98,8 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 	if(!data_len)
 	    break;
 
-	printf("loop checkpoint c...\n");
+	DEBUG_PRINT(("."));
+
 	buf->nFilledLen = data_len;
 	data_len = 0;
 
@@ -98,27 +112,34 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 	else
 	    buf->nFlags = OMX_BUFFERFLAG_TIME_UNKNOWN;
 
+	DEBUG_PRINT(("."));
 	if(OMX_EmptyThisBuffer(ILC_GET_HANDLE(video_decode), buf) != OMX_ErrorNone)
 	{
 	    status = -6;
 	    break;
 	}
+	DEBUG_PRINT((".\n"));
     }
 
+    DEBUG_PRINT(("cleanup phase "));
     buf->nFilledLen = 0;
     buf->nFlags = OMX_BUFFERFLAG_TIME_UNKNOWN | OMX_BUFFERFLAG_EOS;
 
     if(OMX_EmptyThisBuffer(ILC_GET_HANDLE(video_decode), buf) != OMX_ErrorNone)
 	status = -20;
+    DEBUG_PRINT(("."));
 
     // wait for EOS from render
     ilclient_wait_for_event(video_render, OMX_EventBufferFlag, 90, 0, OMX_BUFFERFLAG_EOS, 0,
 			    ILCLIENT_BUFFER_FLAG_EOS, 10000);
+    DEBUG_PRINT(("."));
 
     // need to flush the renderer to allow video_decode to disable its input port
     ilclient_flush_tunnels(tunnel, 0);
+    DEBUG_PRINT(("."));
 
     ilclient_disable_port_buffers(video_decode, 130, NULL, NULL, NULL);
+    DEBUG_PRINT((".\n"));
 
     return status;
 }
@@ -242,7 +263,7 @@ int main (int argc, char **argv)
 
    int ret = 0;
    while (1) {
-     printf("playing %s ...\n", current_movie());
+     DEBUG_PRINT(("playing %s ...\n", current_movie()));
      ret = video_decode_test(current_movie());
      next_movie();
    }
