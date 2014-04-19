@@ -47,10 +47,14 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 
     ilclient_change_component_state(video_decode, OMX_StateExecuting);
 
-    while(check_interrupt() == 0 &&
-          (buf = ilclient_get_input_buffer(video_decode, 130, 1)) != NULL)
+    while((buf = ilclient_get_input_buffer(video_decode, 130, 1)) != NULL)
     {
-        printf("loop ...\n");
+        if(check_interrupt() != 0) {
+	    printf("detected interrupt, aborting loop ...\n");
+	    status = -7;
+	    break;
+	}
+
 	// feed data and wait until we get port settings changed
 	unsigned char *dest = buf->pBuffer;
 
@@ -81,6 +85,7 @@ int play_h264_data(COMPONENT_T *video_decode, COMPONENT_T *video_scheduler,
 	if(!data_len)
 	    break;
 
+	printf("loop checkpoint c...\n");
 	buf->nFilledLen = data_len;
 	data_len = 0;
 
