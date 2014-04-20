@@ -36,7 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "yorgo.h"
 
-/* #define DEBUG 1 */
+#define DEBUG 1
 
 #ifdef DEBUG
 # define DEBUG_PRINT(x) printf x
