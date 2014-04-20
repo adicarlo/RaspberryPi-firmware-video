@@ -92,15 +92,19 @@ void prior_movie () {
     }
 }
 
+/* interrupt handlers .... 
+ * note these run within a while loop which is already hitting next_movie on
+ * each iteration
+ */
 void next_movie_intr () {
     printf("interrupt: next\n");
-    next_movie();
     raise_interrupt();
 }
 
 void prior_movie_intr () {
     printf("interrupt: prior\n");
-    prior_movie();
+    prior_movie();		/* once to counteract the next movie which is to come */
+    prior_movie();		/* once to actually go back */
     raise_interrupt();
 }
 
